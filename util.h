@@ -41,6 +41,7 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #define UTIL_H_
 
 #include <inttypes.h>
+#include <avr/interrupt.h> // cli() lives in here
 
 #define CPU_PRESCALE(n)	(CLKPR = 0x80, CLKPR = (n))
 
@@ -48,5 +49,113 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #define bit_clear(p,m) ((p) &= ~(m))
 #define bit_write(c,p,m) (c ? bit_set(p,m) : bit_clear(p,m))
 #define bit_check(value, bit) (((value) >> (bit)) & 0x01)
+
+// pulled from ArduinoCore-avr/cores/arduino/wiring_private.h
+
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
+
+// pulled from ArduinoCore-avr/cores/arduino/Arduino.h
+
+#define HIGH 0x1
+#define LOW  0x0
+
+#define INPUT 0x0
+#define OUTPUT 0x1
+#define INPUT_PULLUP 0x2
+
+#define DEFAULT 1
+
+#define NOT_A_PIN 0
+#define NOT_A_PORT 0
+
+#define PA 1
+#define PB 2
+#define PC 3
+#define PD 4
+#define PE 5
+#define PF 6
+#define PG 7
+#define PH 8
+#define PJ 10
+#define PK 11
+#define PL 12
+
+#define NOT_ON_TIMER 0
+#define TIMER0A 1
+#define TIMER0B 2
+#define TIMER1A 3
+#define TIMER1B 4
+#define TIMER1C 5
+#define TIMER2  6
+#define TIMER2A 7
+#define TIMER2B 8
+
+#define TIMER3A 9
+#define TIMER3B 10
+#define TIMER3C 11
+#define TIMER4A 12
+#define TIMER4B 13
+#define TIMER4C 14
+#define TIMER4D 15
+#define TIMER5A 16
+#define TIMER5B 17
+#define TIMER5C 18
+
+void pinMode(uint8_t, uint8_t);
+void digitalWrite(uint8_t, uint8_t);
+int digitalRead(uint8_t);
+int analogRead(uint8_t);
+void analogReference(uint8_t mode);
+void analogWrite(uint8_t, int);
+
+#include <avr/pgmspace.h>
+
+extern const uint16_t PROGMEM port_to_mode_PGM[];
+extern const uint16_t PROGMEM port_to_input_PGM[];
+extern const uint16_t PROGMEM port_to_output_PGM[];
+
+extern const uint8_t PROGMEM digital_pin_to_port_PGM[];
+extern const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[];
+extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
+
+// Pulled from ArduinoCore-avr/variants/leonardo/pins_arduino.h
+
+#define PIN_A0   (18)
+#define PIN_A1   (19)
+#define PIN_A2   (20)
+#define PIN_A3   (21)
+#define PIN_A4   (22)
+#define PIN_A5   (23)
+#define PIN_A6   (24)
+#define PIN_A7   (25)
+#define PIN_A8   (26)
+#define PIN_A9   (27)
+#define PIN_A10  (28)
+#define PIN_A11  (29)
+
+static const uint8_t A0 = PIN_A0;
+static const uint8_t A1 = PIN_A1;
+static const uint8_t A2 = PIN_A2;
+static const uint8_t A3 = PIN_A3;
+static const uint8_t A4 = PIN_A4;
+static const uint8_t A5 = PIN_A5;
+static const uint8_t A6 = PIN_A6;	// D4
+static const uint8_t A7 = PIN_A7;	// D6
+static const uint8_t A8 = PIN_A8;	// D8
+static const uint8_t A9 = PIN_A9;	// D9
+static const uint8_t A10 = PIN_A10;	// D10
+static const uint8_t A11 = PIN_A11;	// D12
+
+#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
+#define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
+#define digitalPinToTimer(P) ( pgm_read_byte( digital_pin_to_timer_PGM + (P) ) )
+#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
+#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
+#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
 
 #endif /* UTIL_H_ */
