@@ -50,15 +50,6 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #define bit_write(c,p,m) (c ? bit_set(p,m) : bit_clear(p,m))
 #define bit_check(value, bit) (((value) >> (bit)) & 0x01)
 
-// pulled from ArduinoCore-avr/cores/arduino/wiring_private.h
-
-#ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-#endif
-#ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-#endif
-
 // pulled from ArduinoCore-avr/cores/arduino/Arduino.h
 
 #define HIGH 0x1
@@ -157,5 +148,13 @@ static const uint8_t A11 = PIN_A11;	// D12
 #define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
 #define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
 #define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
+
+//	__AVR_ATmega32U4__ has an unusual mapping of pins to channels
+extern const uint8_t PROGMEM analog_pin_to_channel_PGM[];
+#define analogPinToChannel(P)  ( pgm_read_byte( analog_pin_to_channel_PGM + (P) ) )
+
+// math
+
+long map(long x, long in_min, long in_max, long out_min, long out_max);
 
 #endif /* UTIL_H_ */

@@ -139,8 +139,11 @@ int main(void) {
 //		gamepad_state.lt = pad_l * 0xFF;
 //		gamepad_state.rt = pad_r * 0xFF;
 
-        gamepad_state.l_x = analogRead(A0);
-        gamepad_state.l_y = analogRead(A1);
+		uint8_t x = analogRead(A0);
+		uint8_t y = analogRead(A1);
+
+        gamepad_state.l_x = map(x, 0, 1023, -32768, 32767);
+        gamepad_state.l_y = map(y, 0, 1023, -32768, 32767);
 
         digitalRead(10) != LOW ? bit_set(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK)  : bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
 
