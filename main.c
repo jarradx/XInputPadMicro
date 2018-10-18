@@ -40,6 +40,9 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #include "XInputPad.h"
 #include "util.h"
 #include <LUFA/Drivers/Peripheral/ADC.h>
+#include <LUFA/Common/Common.h>
+
+#define JOYSTICK_DEADZONE	111 // uint16_t max size is 32768
 
 void setup(void);
 void loop(void);
@@ -74,6 +77,9 @@ void setup(void) {
 
     // Init XBOX pad emulation
 	xbox_init(true);
+
+	// todo calibration to work out deadzone
+	// Delay_MS();
 }
 
 void loop(void) {
@@ -107,11 +113,17 @@ void loop(void) {
 	uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL6); // Channel 7 is my X...? to investigate
 	uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL7); // Channel 6 is my Y...? to investigate
 
-	// TODO: take into account deadspot, run pre-loop to calibrate when device is plugged in
+	// map from 0 - 1023 from potentometer, to -32768 - 32767 signed int range XInput wants in return
+	int mx = map(x, 0, 1023, -32768, 32767);
+	int my = map(y, 0, 1023, 32767, -32768); // y is inverted for me?
 
-	// map from 0 - 1023 from potentometer, to -32768 - 32767 signed int range XInput wants in return		
-    gamepad_state.l_x = map(x, 0, 1023, -32768, 32767);
-    gamepad_state.l_y = map(y, 0, 1023, 32767, -32768); // y is inverted for me?
+	// deadzone
+	int dx = abs(mx) < JOYSTICK_DEADZONE ? 0 : mx;
+  	int dy = abs(my) < JOYSTICK_DEADZONE ? 0 : my;
+
+  	// set the left x, y analog stick values
+    gamepad_state.l_x = dx;
+    gamepad_state.l_y = dy;
 
     // set state of left analog stick button
     digitalRead(10) != LOW ? bit_set(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK)  : bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
