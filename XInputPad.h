@@ -71,6 +71,8 @@ typedef struct {
 
 extern USB_JoystickReport_Data_t gamepad_state;
 
+// extern uint8_t TXData[20];
+
 /* Function Prototypes: */
 
 void xbox_reset_pad_status(void);

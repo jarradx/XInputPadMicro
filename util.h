@@ -100,9 +100,6 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 void pinMode(uint8_t, uint8_t);
 void digitalWrite(uint8_t, uint8_t);
 int digitalRead(uint8_t);
-int analogRead(uint8_t);
-void analogReference(uint8_t mode);
-void analogWrite(uint8_t, int);
 
 #include <avr/pgmspace.h>
 
@@ -116,42 +113,12 @@ extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
 
 // Pulled from ArduinoCore-avr/variants/leonardo/pins_arduino.h
 
-#define PIN_A0   (18)
-#define PIN_A1   (19)
-#define PIN_A2   (20)
-#define PIN_A3   (21)
-#define PIN_A4   (22)
-#define PIN_A5   (23)
-#define PIN_A6   (24)
-#define PIN_A7   (25)
-#define PIN_A8   (26)
-#define PIN_A9   (27)
-#define PIN_A10  (28)
-#define PIN_A11  (29)
-
-static const uint8_t A0 = PIN_A0;
-static const uint8_t A1 = PIN_A1;
-static const uint8_t A2 = PIN_A2;
-static const uint8_t A3 = PIN_A3;
-static const uint8_t A4 = PIN_A4;
-static const uint8_t A5 = PIN_A5;
-static const uint8_t A6 = PIN_A6;	// D4
-static const uint8_t A7 = PIN_A7;	// D6
-static const uint8_t A8 = PIN_A8;	// D8
-static const uint8_t A9 = PIN_A9;	// D9
-static const uint8_t A10 = PIN_A10;	// D10
-static const uint8_t A11 = PIN_A11;	// D12
-
 #define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
 #define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
 #define digitalPinToTimer(P) ( pgm_read_byte( digital_pin_to_timer_PGM + (P) ) )
 #define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
 #define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
 #define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
-
-//	__AVR_ATmega32U4__ has an unusual mapping of pins to channels
-extern const uint8_t PROGMEM analog_pin_to_channel_PGM[];
-#define analogPinToChannel(P)  ( pgm_read_byte( analog_pin_to_channel_PGM + (P) ) )
 
 // math
 

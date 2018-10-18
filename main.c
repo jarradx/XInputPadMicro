@@ -41,7 +41,8 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #include "util.h"
 #include <LUFA/Drivers/Peripheral/ADC.h>
 
-void setup_pins(void);
+void setup(void);
+void loop(void);
 
 int main(void) {
 	// Set clock @ 16Mhz
@@ -51,66 +52,69 @@ int main(void) {
 	bit_set(MCUCR, 1 << JTD);
 	bit_set(MCUCR, 1 << JTD);
 
-	// Setup pins
-	setup_pins();
+	// setup
+	setup();
 
-	// Init XBOX pad emulation
-	xbox_init(true);
-
-	// Pins polling and gamepad status updates
 	for (;;) {
-		xbox_reset_watchdog();
-
-		// clear state of buttons we aren't currently using
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_UP);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_DOWN);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_LEFT);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_RIGHT);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_START);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_BACK);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_RIGHT_STICK);
-//		bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
-
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_A);
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_B);
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_X);
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_Y);
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_LB);
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_RB);
-		bit_clear(gamepad_state.digital_buttons_2, XBOX_HOME);
-
-		gamepad_state.r_x = 0;
-		gamepad_state.r_y = 0;
-
-		gamepad_state.lt = 0;
-		gamepad_state.rt = 0;
-
-		// set state of left analog stick
-//		uint16_t x = analogRead(A0);
-//		uint16_t y = analogRead(A1);
-		uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_LEFT_ADJUSTED | ADC_CHANNEL0);
-		uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_LEFT_ADJUSTED | ADC_CHANNEL1);
-
-		// TODO: take into account deadspot, run pre-loop to calibrate when device is plugged in
-
-		// map from 0 - 1023 from potentometer, to the uint16_t range XInput wants in return		
-        gamepad_state.l_x = map(x, 0, 1023, -32768, 32767);
-        gamepad_state.l_y = map(y, 0, 1023, -32768, 32767);
-
-        // set state of left analog stick button
-        digitalRead(10) != LOW ? bit_set(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK)  : bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
-
-		xbox_send_pad_state();
+		// loop
+		loop();
 	}
 }
 
-void setup_pins(void) {
-//  pinMode(A0, INPUT); // Analog Pin 0
-//  pinMode(A1, INPUT); // Analog Pin 1
-    ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_32);
+void setup(void) {
+	// setup ADC
+    ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_128);
 
-    ADC_SetupChannel(0);
-    ADC_SetupChannel(1);
+    // Setup ADC Channels (by index)
+    ADC_SetupChannel(6);
+    ADC_SetupChannel(7);
 
+    // Pull digital pin HIGH that need it (Pin 10 is Joystick Button, which pulls LOW on press)
     pinMode(10, INPUT_PULLUP); // Digital Pin 10
+
+    // Init XBOX pad emulation
+	xbox_init(true);
+}
+
+void loop(void) {
+	xbox_reset_watchdog();
+
+	// clear state of buttons we aren't currently using
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_UP);
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_DOWN);
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_LEFT);
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_DPAD_RIGHT);
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_START);
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_BACK);
+	bit_clear(gamepad_state.digital_buttons_1, XBOX_RIGHT_STICK);
+	// bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
+
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_A);
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_B);
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_X);
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_Y);
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_LB);
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_RB);
+	bit_clear(gamepad_state.digital_buttons_2, XBOX_HOME);
+
+	gamepad_state.r_x = 0;
+	gamepad_state.r_y = 0;
+
+	gamepad_state.lt = 0;
+	gamepad_state.rt = 0;
+
+	// set state of left analog stick
+	uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL6); // Channel 7 is my X...? to investigate
+	uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL7); // Channel 6 is my Y...? to investigate
+
+	// TODO: take into account deadspot, run pre-loop to calibrate when device is plugged in
+
+	// map from 0 - 1023 from potentometer, to -32768 - 32767 signed int range XInput wants in return		
+    gamepad_state.l_x = map(x, 0, 1023, -32768, 32767);
+    gamepad_state.l_y = map(y, 0, 1023, 32767, -32768); // y is inverted for me?
+
+    // set state of left analog stick button
+    digitalRead(10) != LOW ? bit_set(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK)  : bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
+
+	xbox_send_pad_state();
 }
