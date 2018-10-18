@@ -17,6 +17,7 @@
   Modified 28 September 2010 by Mark Sproul
 */
 
+#include "util.h"
 #include "wiring_private.h"
 
 uint8_t analog_reference = DEFAULT;

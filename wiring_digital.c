@@ -18,6 +18,7 @@
 */
 
 #define ARDUINO_MAIN
+#include "util.h"
 #include "wiring_private.h"
 
 void pinMode(uint8_t pin, uint8_t mode)

@@ -1,8 +1,6 @@
 #ifndef WiringPrivate_h
 #define WiringPrivate_h
 
-#include "util.h"
-
 // pulled from ArduinoCore-avr/cores/arduino/wiring_private.h
 
 #ifndef cbi

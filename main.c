@@ -91,6 +91,9 @@ int main(void) {
 		uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_LEFT_ADJUSTED | ADC_CHANNEL0);
 		uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_LEFT_ADJUSTED | ADC_CHANNEL1);
 
+		// TODO: take into account deadspot, run pre-loop to calibrate when device is plugged in
+
+		// map from 0 - 1023 from potentometer, to the uint16_t range XInput wants in return		
         gamepad_state.l_x = map(x, 0, 1023, -32768, 32767);
         gamepad_state.l_y = map(y, 0, 1023, -32768, 32767);
 
