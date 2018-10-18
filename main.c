@@ -40,9 +40,6 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #include "XInputPad.h"
 #include "util.h"
 #include <LUFA/Drivers/Peripheral/ADC.h>
-#include <LUFA/Common/Common.h>
-
-#define JOYSTICK_DEADZONE	111 // uint16_t max size is 32768
 
 void setup(void);
 void loop(void);
@@ -64,6 +61,38 @@ int main(void) {
 	}
 }
 
+int cUpperX = 0;
+int cLowerX = 1023;
+int cUpperY = 0;
+int cLowerY = 1023;
+int cCenter = 511; // center point
+int cDeadzone = 0;
+
+void calibrate(void) {
+    // record upper and lower "centered" values for the first 5 seconds of being plugged in
+    while (millis() < 5000) {
+        uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL6);
+        uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL7);
+
+        if (x > cUpperX) cUpperX = x;
+        if (x < cLowerX) cLowerX = x;
+        if (y > cUpperY) cUpperY = y;
+        if (y < cLowerY) cLowerY = y;
+    }
+
+    int distances[4] = {
+        abs(cUpperX - cCenter),
+        abs(cLowerX - cCenter),
+        abs(cUpperY - cCenter),
+        abs(cLowerY - cCenter)
+    };
+
+
+    for (int i=0; i<4; i++){
+       if (distances[i] > cDeadzone) cDeadzone = distances[i];
+    }
+}
+
 void setup(void) {
 	// setup ADC
     ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_128);
@@ -78,8 +107,8 @@ void setup(void) {
     // Init XBOX pad emulation
 	xbox_init(true);
 
-	// todo calibration to work out deadzone
-	// Delay_MS();
+	// Calibrate Deadzone
+    calibrate();
 }
 
 void loop(void) {
@@ -114,12 +143,23 @@ void loop(void) {
 	uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL7); // Channel 6 is my Y...? to investigate
 
 	// map from 0 - 1023 from potentometer, to -32768 - 32767 signed int range XInput wants in return
-	int mx = map(x, 0, 1023, -32768, 32767);
-	int my = map(y, 0, 1023, 32767, -32768); // y is inverted for me?
+	// take into account deadzone from calibration
+	int dx, dy;
+	if (x <= cCenter) {
+	    // map from 0 - (511 - deadzone), to the -32768 - -1;
+	    dx = map(x, 0, cCenter - cDeadzone, -32768, -1);
+	} else {
+	    // map from 0 - (512 + deadzone), to the 0 - 32767;
+	    dx = map(x, cCenter + 1 + cDeadzone, 1023, 0, 32767);
+	}
 
-	// deadzone
-	int dx = abs(mx) < JOYSTICK_DEADZONE ? 0 : mx;
-  	int dy = abs(my) < JOYSTICK_DEADZONE ? 0 : my;
+	if (y <= cCenter) {
+	    // map from 0 - (511 - deadzone), to the 32767 - 0;
+	    dy = map(y, 0, cCenter - cDeadzone, 32767, 0);
+	} else {
+	    // map from 0 - (512 + deadzone), to the -1 - -32768;
+	    dy = map(y, cCenter + 1 + cDeadzone, 1023, -1, -32768);
+	}
 
   	// set the left x, y analog stick values
     gamepad_state.l_x = dx;

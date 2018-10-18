@@ -50,6 +50,12 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #define bit_write(c,p,m) (c ? bit_set(p,m) : bit_clear(p,m))
 #define bit_check(value, bit) (((value) >> (bit)) & 0x01)
 
+#define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
+#define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
+#define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
+
+unsigned long millis(void);
+
 // pulled from ArduinoCore-avr/cores/arduino/Arduino.h
 
 #define HIGH 0x1
