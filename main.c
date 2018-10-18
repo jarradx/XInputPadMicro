@@ -39,6 +39,7 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 
 #include "XInputPad.h"
 #include "util.h"
+#include <LUFA/Drivers/Peripheral/ADC.h>
 
 void setup_pins(void);
 
@@ -68,7 +69,7 @@ int main(void) {
 		bit_clear(gamepad_state.digital_buttons_1, XBOX_START);
 		bit_clear(gamepad_state.digital_buttons_1, XBOX_BACK);
 		bit_clear(gamepad_state.digital_buttons_1, XBOX_RIGHT_STICK);
-		bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
+//		bit_clear(gamepad_state.digital_buttons_1, XBOX_LEFT_STICK);
 
 		bit_clear(gamepad_state.digital_buttons_2, XBOX_A);
 		bit_clear(gamepad_state.digital_buttons_2, XBOX_B);
@@ -85,8 +86,10 @@ int main(void) {
 		gamepad_state.rt = 0;
 
 		// set state of left analog stick
-		uint8_t x = analogRead(A0);
-		uint8_t y = analogRead(A1);
+//		uint16_t x = analogRead(A0);
+//		uint16_t y = analogRead(A1);
+		uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_LEFT_ADJUSTED | ADC_CHANNEL0);
+		uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_LEFT_ADJUSTED | ADC_CHANNEL1);
 
         gamepad_state.l_x = map(x, 0, 1023, -32768, 32767);
         gamepad_state.l_y = map(y, 0, 1023, -32768, 32767);
@@ -99,7 +102,12 @@ int main(void) {
 }
 
 void setup_pins(void) {
-  pinMode(A0, INPUT); // Analog Pin 0
-  pinMode(A1, INPUT); // Analog Pin 1
-  pinMode(10, INPUT_PULLUP); // Digital Pin 10
+//  pinMode(A0, INPUT); // Analog Pin 0
+//  pinMode(A1, INPUT); // Analog Pin 1
+    ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_32);
+
+    ADC_SetupChannel(0);
+    ADC_SetupChannel(1);
+
+    pinMode(10, INPUT_PULLUP); // Digital Pin 10
 }
