@@ -52,3 +52,37 @@ to the original KADE development team:
 
  Visit the Open Source Software / Open Hardware pages on our forum at
  http://kadevice.com/forum/viewforum.php?f=20
+ 
+ 
+##OSX Pre-requisites
+####Install avrdude
+`brew install avrdude`
+####Install AVR toolchain
+`brew tap osx-cross/avr && brew install avr-gcc`
+
+Note: if you do not have xcode cli installed, install it with `xcode-select --install`
+
+##Windows Pre-requisites
+####Install USBasp drivers
+Download Zadig from here: http://zadig.akeo.ie/, it will detect the USB device, and offer the correct USB drivers to install
+####Install avrdude
+Download WinAVR from here: https://sourceforge.net/projects/winavr/, it will install the avrdude package
+####Install AVR toolchain
+Download AVR 8-bit toolchain from here: https://www.microchip.com/mplab/avr-support/avr-and-arm-toolchains-c-compilers, you will need to add the install directory to the $PATH
+
+##Alternative for Windows
+Follow this tutorial to setup the full AVR toolchain, USBasp drivers & avrdude: http://fab.cba.mit.edu/classes/863.16/doc/projects/ftsmin/windows_avr.html
+
+
+##Building the project
+`make clean && make`
+
+##Flashing the device with avrdude via USBasp programmer
+
+###Verify Device (leonardo atmega32u4)
+
+`avrdude -v -c usbasp -p m32u4`
+
+###Flash Device (leonardo atmega32u4)
+
+`avrdude -v -c usbasp -p m32u4 -U flash:w:/Users/jarrad/Development/Arduino/XInputPadMicro/XInputPadMicro.hex:i`

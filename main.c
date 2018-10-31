@@ -66,7 +66,7 @@ int cLowerX = 1023;
 int cUpperY = 0;
 int cLowerY = 1023;
 int cCenter = 511; // center point
-int cDeadzone = 0;
+int cDeadzone = 15;
 
 void calibrate(void) {
     // record upper and lower "centered" values for the first 5 seconds of being plugged in
@@ -108,7 +108,7 @@ void setup(void) {
 	xbox_init(true);
 
 	// Calibrate Deadzone
-    calibrate();
+//    calibrate();
 }
 
 void loop(void) {
