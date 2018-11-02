@@ -66,11 +66,11 @@ int cLowerX = 1023;
 int cUpperY = 0;
 int cLowerY = 1023;
 int cCenter = 511; // center point
-int cDeadzone = 15;
+int cDeadzone = 0;
 
 void calibrate(void) {
-    // record upper and lower "centered" values for the first 5 seconds of being plugged in
-    while (millis() < 5000) {
+    // record upper and lower "centered" values for the first 1000 reads
+    for (int i = 0; i < 1000; i++) {
         uint16_t x = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL6);
         uint16_t y = ADC_GetChannelReading(ADC_REFERENCE_AVCC | ADC_RIGHT_ADJUSTED | ADC_CHANNEL7);
 
@@ -95,7 +95,7 @@ void calibrate(void) {
 
 void setup(void) {
 	// setup ADC
-    ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_128);
+    ADC_Init(ADC_FREE_RUNNING | ADC_PRESCALE_32);
 
     // Setup ADC Channels (by index)
     ADC_SetupChannel(6);
@@ -108,7 +108,7 @@ void setup(void) {
 	xbox_init(true);
 
 	// Calibrate Deadzone
-//    calibrate();
+    calibrate();
 }
 
 void loop(void) {

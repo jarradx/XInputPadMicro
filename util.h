@@ -54,8 +54,6 @@ S21  XJj88  0u  1uY2.        X2k           .    k11E   v    7;ii:JuJvLvLvJ2:
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
 #define microsecondsToClockCycles(a) ( (a) * clockCyclesPerMicrosecond() )
 
-unsigned long millis(void);
-
 // pulled from ArduinoCore-avr/cores/arduino/Arduino.h
 
 #define HIGH 0x1
